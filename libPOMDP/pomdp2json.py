@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 """
 Copyright (C) 2017  Richard Möhn <richard.moehn+p2j@posteo.de>
 
@@ -18,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # Credits: https://github.com/amarack/python-rl/blob/master/pyrl/environments/pomdp.py
 
+import json
 import sys
 
 import numpy as np
@@ -25,37 +28,43 @@ from scipy import sparse
 
 import libpomdp
 
+
+# Credits: https://github.com/amarack/python-rl/blob/master/pyrl/environments/pomdp.py
+def buildSparseMatrix(rcd, shape):  # rcd = row col data
+    return sparse.csr_matrix((rcd[2], (rcd[0], rcd[1])), shape=shape).todense()
+
+
+def transition_matrix(alibpomdp):
+    return np.array([buildSparseMatrix(k, (alibpomdp.getNumStates(),
+                                           alibpomdp.getNumStates()))
+                     for k in libpomdp.getSparseTransitionMatrix()])
+
+
+def observation_matrix(alibpomdp):
+    return np.array([buildSparseMatrix(k, (alibpomdp.getNumStates(),
+                                           alibpomdp.getNumObservations()))
+                     for k in libpomdp.getSparseObsMatrix()])
+
+
+def reward_matrix(alibpomdp):
+    return np.array([[alibpomdp.getReward(s, a, 0, 0)
+                      for a in xrange(alibpomdp.getNumActions())]
+                     for s in xrange(alibpomdp.getNumStates())])
+
+
 def run(pomdp_path, json_path):
     if not libpomdp.readMDP(pomdp_path):
         raise RuntimeError("POMDP file invalid or not found at %s" % pomdp_path)
 
-    initial_belief = libpomdp.getInitialBelief()
-    print initial_belief
+    pomdp = {
+        'initial_belief':       libpomdp.getInitialBelief(),
+        'transition_matrix':    transition_matrix(libpomdp),
+        'observation_matrix':   observation_matrix(libpomdp),
+        'reward_matrix':        reward_matrix(libpomdp),
+        'discount_factor':      libpomdp.getDiscount()
+    }
 
-    O = map(lambda k: buildSparseMatrix(
-                            k,
-                            (libpomdp.getNumStates(),
-                             libpomdp.getNumObservations())),
-                 libpomdp.getSparseObsMatrix())
-    print np.array(O)
-    # This gives us |A| x |S| x |O|
-    #                at   st+1  ot+1.
-
-    P = map(lambda k: buildSparseMatrix(
-                            k,
-                            (libpomdp.getNumStates(), libpomdp.getNumStates())),
-                 libpomdp.getSparseTransitionMatrix())
-    print np.array(P)
-    # This gives us |A| x |S| x |S|
-    #                a     s     s'.
-
-
-    # Want also |S| x |A|
-    #            s     a  - Reward for taking action a in state s.
-
-
-def buildSparseMatrix(rcd, shape): # row col data
-    return sparse.csr_matrix((rcd[2], (rcd[0],rcd[1])), shape=shape).todense()
+    print json.dumps(pomdp)
 
 
 run(sys.argv[1], sys.argv[2])
