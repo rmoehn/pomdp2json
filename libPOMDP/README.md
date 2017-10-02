@@ -24,6 +24,21 @@ and observation, because I don't need it. It will be easy to add later if anyone
 needs it.
 
 
+Compiling
+---------
+
+    $ cat build.sh  # See that it's small and benign.
+    $ ./build.sh
+
+Let me know if it doesn't work for you!
+
+
+Usage
+-----
+
+    $ python pomdp2json.py <in>.POMDP <out>.POMDP.json
+
+
 Based on: pyrl.environments.libPOMDP
 ------------------------------------
 
