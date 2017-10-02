@@ -1,0 +1,5 @@
+libpomdp.so
+build
+*.POMDP
+*.POMDP.json
+test.py
