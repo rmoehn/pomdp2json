@@ -1,9 +1,6 @@
 pomdp2json
 ==========
 
-**Note** Program and documentation are not finished yet. I expect to finish it
-by 2017-10-06.
-
 This is a converter from Anthony Cassandra's (Tony's) [POMDP File
 Format](http://www.pomdp.org/code/pomdp-file-spec.html) to JSON. I've spent an
 entire morning (my mornings are long) trying to load a POMDP files into Python.
@@ -16,9 +13,9 @@ Note that this program will also be incomplete, but in a better way. Given a
 POMDP file, it will produce a JSON file with the following contents:
 
  - Discount factor: `number`
- - Initial belief: `[number]`
+ - Initial belief: `|S|: [s]`
  - Transition probability matrix: `|S| x |A| x |S|: [st, at, st+1]`
- - Observation probability matrix: `|A| x |S| x |O|: [at, at+1, ot+1]`
+ - Observation probability matrix: `|A| x |S| x |O|: [at, st+1, ot+1]`
  - Reward matrix: `|S| x |A|: [st, at]`
 
 Where is it incomplete? The POMDP format allows the reward to depend on action,
@@ -50,7 +47,7 @@ I'm reusing a Python interface and compilation setup from Will Dabney's
 LICENSE
 -------
 
-Anthony Cassandra's original code for pomdp-solve included a `COPYING` file with
+Anthony Cassandra's original code for pomdp-solve includes a `COPYING` file with
 the text of the GNU General Public License, Version 2. Therefore, I assume that
 that license applies to the POMDP file reading code and I release pomdp2json
 under the same license.
