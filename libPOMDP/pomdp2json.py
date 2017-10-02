@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.7
 # -*- encoding: utf-8 -*-
 
 """
@@ -16,6 +17,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ * * * * *
+
+Usage:
+
+    $ python pomdp2json.py <in>.POMDP <out>.POMDP.json
 """
 
 # Credits: https://github.com/amarack/python-rl/blob/master/pyrl/environments/pomdp.py
