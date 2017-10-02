@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # Credits: https://github.com/amarack/python-rl/blob/master/pyrl/environments/pomdp.py
 
+import collections
 import json
 import sys
 
@@ -52,19 +53,31 @@ def reward_matrix(alibpomdp):
                      for s in xrange(alibpomdp.getNumStates())])
 
 
+def pyify(o):
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    else:
+        return o
+
+
 def run(pomdp_path, json_path):
     if not libpomdp.readMDP(pomdp_path):
         raise RuntimeError("POMDP file invalid or not found at %s" % pomdp_path)
 
-    pomdp = {
-        'initial_belief':       libpomdp.getInitialBelief(),
-        'transition_matrix':    transition_matrix(libpomdp),
-        'observation_matrix':   observation_matrix(libpomdp),
-        'reward_matrix':        reward_matrix(libpomdp),
-        'discount_factor':      libpomdp.getDiscount()
-    }
+    pomdp = collections.OrderedDict([
+        ('initial_belief',       libpomdp.getInitialBelief()),
+        ('transition_matrix',    transition_matrix(libpomdp)),
+        ('observation_matrix',   observation_matrix(libpomdp)),
+        ('reward_matrix',        reward_matrix(libpomdp)),
+        ('discount_factor',      libpomdp.getDiscount())
+    ])
 
-    print json.dumps(pomdp)
+    with open(json_path, 'w') as f:
+        json.dump(collections.OrderedDict((k, pyify(v))
+                                          for k, v in pomdp.items()),
+                  f,
+                  indent=4)
 
 
-run(sys.argv[1], sys.argv[2])
+if __name__ == '__main__':
+    run(sys.argv[1], sys.argv[2])
