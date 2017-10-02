@@ -42,9 +42,10 @@ def buildSparseMatrix(rcd, shape):  # rcd = row col data
 
 
 def transition_matrix(alibpomdp):
-    return np.array([buildSparseMatrix(k, (alibpomdp.getNumStates(),
+    orig = np.array([buildSparseMatrix(k, (alibpomdp.getNumStates(),
                                            alibpomdp.getNumStates()))
                      for k in libpomdp.getSparseTransitionMatrix()])
+    return np.swapaxes(orig, 0, 1)
 
 
 def observation_matrix(alibpomdp):
