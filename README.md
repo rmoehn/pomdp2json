@@ -30,7 +30,8 @@ Compiling
     $ cat build.sh  # See that it's small and benign.
     $ ./build.sh
 
-Let me know if it doesn't work for you!
+You might need to install development tools like gcc before you can compile. Let
+me know if you have any difficulties.
 
 
 Usage
