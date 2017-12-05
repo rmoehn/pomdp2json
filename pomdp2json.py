@@ -27,6 +27,7 @@ Usage:
 # Credits: https://github.com/amarack/python-rl/blob/master/pyrl/environments/pomdp.py
 
 import collections
+import itertools
 import json
 import sys
 
@@ -54,10 +55,49 @@ def observation_matrix(alibpomdp):
                      for k in libpomdp.getSparseObsMatrix()])
 
 
-def reward_matrix(alibpomdp):
-    return np.array([[alibpomdp.getReward(s, a, 0, 0)
+def _all_rewards_for(alibpomdp, st1, ot1):
+    """Extract a reward matrix for (st+1, ot+1) = (st1, ot1)"""
+    return np.array([[alibpomdp.getReward(s, a, st1, ot1)
                       for a in xrange(alibpomdp.getNumActions())]
                      for s in xrange(alibpomdp.getNumStates())])
+
+
+# How to check the condition? Extract a reward matrix for (st+1, ot+1) = (0, 0).
+# Then extract reward matrices for all (st+1, ot+1) and make sure that they
+# equal the first one.
+def reward_matrix(alibpomdp):
+    """
+    Extract the reward matrix from a libpomdp.
+
+    The rewards must depend only on the action and the state before the action.
+    ∀ st, at, st+1, ot+1 (R(st, at, 0, 0) = R(st, at, st+1, ot+1))
+
+    Parameters
+    ----------
+    alibpomdp
+
+    Returns
+    -------
+    ndarray
+        of shape |S| x |A|
+
+    Raises
+    ------
+    ValueError
+        If the above condition is not fulfilled.
+    """
+    res = _all_rewards_for(alibpomdp, 0, 0)
+
+    all_states_obss = itertools.product(xrange(alibpomdp.getNumStates()),
+                                        xrange(alibpomdp.getNumObservations()))
+    for (st1, ot1) in all_states_obss:
+        if not np.array_equal(res, _all_rewards_for(libpomdp, st1, ot1)):
+            raise ValueError(
+                "The rewards as specified in the POMDP file depend on"
+                " more than action and state before action. See the README for"
+                " how to deal with this.")
+
+    return res
 
 
 def pyify(o):
