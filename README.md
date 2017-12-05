@@ -19,9 +19,9 @@ POMDP file, it will produce a JSON file with the following contents:
  - Reward matrix: `|S| x |A|: [st, at]`
 
 Where is it incomplete? The POMDP format allows the reward to depend on action,
-start state, end state and observation. I leave out the dependency on end state
-and observation, because I don't need it. It will be easy to add later if anyone
-needs it.
+state before action, state after action and observation. I leave out the
+dependency on state after action and observation, because I don't need it. It
+will be easy to add later if anyone needs it.
 
 
 Compiling
@@ -57,6 +57,50 @@ I'm reusing a Python interface and compilation setup from Will Dabney's
 > has many useful implementations in pure C that may later be brought into this module for use in python.
 >
 > This has been tested on Mac OS X, but 'should' also work in Linux.
+
+
+Exception about rewards
+-----------------------
+
+As noted before, pomdp2json does not deal with POMDP files that specify the
+rewards to depend on more than action and state before action. If an input POMDP
+doesn't stick to that, pomdp2json will raise an exception.
+
+What can you do? In general, there is no easy way to convert a POMDP with a
+R(st, at, st+1, ot+1) reward function to a POMDP with a R(st, at) reward
+function. There might be a sophisticated way that I don't know. But there are
+also easy cases where you can fiddle with the original POMDP file. For example,
+`hallway.POMDP` defines this reward function:
+
+```
+# Rewards
+# (R: <action> : <start-state> : <end-state> : <observation> %f)
+R: * : * : 56 : * 1.000000
+R: * : * : 57 : * 1.000000
+R: * : * : 58 : * 1.000000
+R: * : * : 59 : * 1.000000
+```
+
+If you swap columns like this…
+
+```
+R: * : 56 : * : * 1.000000
+R: * : 57 : * : * 1.000000
+R: * : 58 : * : * 1.000000
+R: * : 59 : * : * 1.000000
+```
+
+…then the POMDP (file) will be compatible with pomdp2json and in turn with tools
+like [piglet_pbvi](https://github.com/rmoehn/piglet_pbvi). Is it the same POMDP
+as the original? Maybe not. But I guess it's almost the same.
+
+
+To do
+-----
+
+- Maybe add automatic downloading and unpacking of POMDP files.
+- Maybe unify documentation (reStructuredText) and add usage information to
+  `pomdp2json.py`.
 
 
 LICENSE
