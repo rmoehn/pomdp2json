@@ -103,8 +103,7 @@ def reward_matrix(alibpomdp):
 def pyify(o):
     if isinstance(o, np.ndarray):
         return o.tolist()
-    else:
-        return o
+    return o
 
 
 def run(pomdp_path, json_path):
@@ -127,4 +126,8 @@ def run(pomdp_path, json_path):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        raise ValueError("You must provide exactly two arguments:"
+                         " <in>.POMDP <out>.POMDP.json")
+
     run(sys.argv[1], sys.argv[2])
